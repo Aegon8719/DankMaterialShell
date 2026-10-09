@@ -135,7 +135,7 @@ function resolveScreen(inputs, screen, options) {
             const config = input.config;
             const kind = isIsland(config) ? "island" : frameHosted && !config.useOverlayLayer ? "frame" : "bar";
             const spacing = frameStyled || config.attachToScreenEdge ? 0 : config.spacing ?? 4;
-            const thickness = kind === "island" ? input.islandThickness : frameStyled ? Math.round(Math.round(options.frameBarSize * (screen.scale || 1)) / (screen.scale || 1)) : input.barThickness + spacing + (config.bottomGap ?? 0);
+            const thickness = kind === "island" ? input.islandThickness : frameStyled ? Math.round(Math.round(options.frameBarSize * (screen.scale || 1)) / (screen.scale || 1)) : input.edgeGeometry?.exclusive ?? (input.barThickness + spacing + (config.bottomGap ?? 0));
             const paintedThickness = thickness + (kind !== "island" && !frameStyled ? input.wingSize ?? 0 : 0);
             const reserves = kind === "island" ? !(input.islandFloating ?? config.islandFloating) : config.visible !== false && (!config.autoHide || frameStyled);
             const contribution = reserves ? Math.max(0, rowOffset + thickness - reservation) : 0;

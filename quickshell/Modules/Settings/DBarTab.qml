@@ -704,7 +704,7 @@ Item {
             SettingsSliderRow {
                 settingKey: "barExclusiveZone"
                 tags: ["exclusive", "zone", "reserved", "offset"]
-                visible: !bar.islandOwnsSelectedBarTop && !bar.selectedBarFrameStyled
+                visible: !CompositorService.isNiri && !bar.islandOwnsSelectedBarTop && !bar.selectedBarFrameStyled
                 text: I18n.tr("Exclusive zone offset")
                 description: I18n.tr("Grows or shrinks the space windows keep clear", "bar and dock exclusive zone offset slider description")
                 resetStore: bar

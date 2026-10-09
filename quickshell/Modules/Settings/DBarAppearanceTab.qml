@@ -371,7 +371,7 @@ Item {
             }
 
             SettingsSliderRow {
-                visible: !bar.selectedBarFrameStyled && !bar.islandOwnsSelectedBarTop
+                visible: !CompositorService.isNiri && !bar.selectedBarFrameStyled && !bar.islandOwnsSelectedBarTop
                 text: I18n.tr("Edge spacing")
                 tags: ["edge", "spacing", "gap", "margin"]
                 resetStore: bar
@@ -430,23 +430,6 @@ Item {
                 value: bar.selectedBarConfig?.barLengthPercent ?? 80
                 onSliderDragFinished: finalValue => SettingsData.updateBarConfig(bar.selectedBarId, {
                         barLengthPercent: finalValue
-                    })
-            }
-
-            SettingsSliderRow {
-                settingKey: "barLengthPadding"
-                visible: !bar.selectedBarFrameStyled && !bar.islandOwnsSelectedBarTop && (bar.selectedBarConfig?.barLengthMode ?? "full") === "full"
-                text: I18n.tr("Length padding")
-                description: I18n.tr("Shortens the bar at both ends", "bar length padding slider description")
-                tags: ["bar", "length", "padding", "size", "shorter", "ends"]
-                resetStore: bar
-                resetKeys: ["barLengthPadding"]
-                unit: "px"
-                minimum: 0
-                maximum: 512
-                value: bar.selectedBarConfig?.barLengthPadding ?? 0
-                onSliderDragFinished: finalValue => SettingsData.updateBarConfig(bar.selectedBarId, {
-                        barLengthPadding: finalValue
                     })
             }
 

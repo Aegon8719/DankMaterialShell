@@ -21,6 +21,7 @@ Singleton {
     readonly property var primaryBar: SettingsData.getPrimaryBarConfig()
     readonly property var layouts: screens.map(screen => Resolver.resolveScreen(SettingsData.barConfigs.map(config => ({
                     config,
+                    edgeGeometry: CompositorService.isNiri ? NiriService.barGeometry(screen.name, config.position, Theme.barThickness(config.innerPadding ?? 4, screen.scale), screen.scale) : null,
                     barThickness: Theme.barThickness(config.innerPadding ?? 4, screen.scale),
                     wingSize: config.gothCornersEnabled && root.barSpansEdge(config) ? Math.max(0, config.gothCornerRadiusOverride ? config.gothCornerRadiusValue ?? 12 : Theme.windowRadius) : 0,
                     popupThickness: Theme.barThickness(Resolver.option(config, "innerPadding", root.primaryBar, 4), screen.scale),
@@ -41,7 +42,7 @@ Singleton {
     readonly property var freeIslandKeys: layouts.reduce((keys, layout) => keys.concat(layout.instances.filter(instance => instance.free).map(instance => instance.key)), [])
 
     function barSpansEdge(config) {
-        return (config?.barLengthMode ?? "full") === "full" && (config?.barLengthPadding ?? 0) <= 0;
+        return (config?.barLengthMode ?? "full") === "full";
     }
 
     function forScreen(screen) {
@@ -173,7 +174,7 @@ Singleton {
 
     function popupTrigger(pos, screen, thickness, width, spacing, position, config) {
         const edge = position === undefined ? (primaryBar?.position ?? 0) : position;
-        const gap = spacing === undefined ? (primaryBar?.spacing ?? 4) : spacing;
+        const gap = CompositorService.isNiri ? NiriService.barGeometry(screen?.name, position, thickness, CompositorService.getScreenScale(screen)).gap : spacing === undefined ? (primaryBar?.spacing ?? 4) : spacing;
         const trigger = Resolver.popupTrigger(pos, screen, thickness, width, gap, edge, config, primaryBar, SettingsData.connectedFrameModeActive);
         const offset = forScreen(screen)?.instances.find(instance => instance.barId === config?.id)?.rowOffset ?? 0;
         switch (edge) {

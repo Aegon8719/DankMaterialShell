@@ -4,6 +4,7 @@ import qs.Common
 import qs.Modules.DIsland
 import qs.Services
 import qs.Widgets
+import "../../Common/BarGeometry.js" as BarGeometry
 
 Item {
     id: barWindow
@@ -194,7 +195,7 @@ Item {
         const point = context?.screenPoint(clickItem, clickX, clickY) ?? null;
         if (popout?.setTriggerPosition && point) {
             const thickness = context.thickness;
-            const spacing = barConfig?.spacing ?? 4;
+            const spacing = effectiveSpacing;
             const position = barConfig?.position ?? 0;
             const trigger = SettingsData.getPopupTriggerPosition(point, screen, thickness, 1, spacing, position, barConfig);
             popout.setTriggerPosition(trigger.x, trigger.y, trigger.width, "center", screen, position, thickness, spacing, barConfig, clickItem);
@@ -639,21 +640,23 @@ Item {
             shouldHideForWindows = false;
             return;
         }
-        shouldHideForWindows = CompositorService.windowsHideBar(screenName, barConfig?.position ?? 0, barWindow.effectiveBarThickness + (barConfig?.spacing ?? 4), barWindow.screen?.width ?? 0, barWindow.screen?.height ?? 0);
+        shouldHideForWindows = CompositorService.windowsHideBar(screenName, barConfig?.position ?? 0, barWindow.effectiveBarThickness + effectiveSpacing, barWindow.screen?.width ?? 0, barWindow.screen?.height ?? 0);
     }
 
-    readonly property bool edgeAttached: (barConfig?.attachToScreenEdge ?? false) && !(FrameTransitionState.effectiveFrameEnabled && usesFrameBarChrome)
+    readonly property bool edgeAttached: !CompositorService.isNiri && (barConfig?.attachToScreenEdge ?? false) && !(FrameTransitionState.effectiveFrameEnabled && usesFrameBarChrome)
     readonly property string barLengthMode: isIsland || (FrameTransitionState.effectiveFrameEnabled && usesFrameBarChrome) ? "full" : (barConfig?.barLengthMode ?? "full")
     readonly property bool fitToWidgets: barLengthMode === "fit"
-    readonly property bool spansEdge: barLengthMode === "full" && ((FrameTransitionState.effectiveFrameEnabled && usesFrameBarChrome) || (barConfig?.barLengthPadding ?? 0) <= 0)
+    readonly property bool spansEdge: barLengthMode === "full"
     property bool _fitSettled: false
-    property real effectiveSpacing: isIsland || (FrameTransitionState.effectiveFrameEnabled && usesFrameBarChrome) ? 0 : ((edgeAttached || (flattenForMaximizedWindow && hasMaximizedToplevel)) ? 0 : (barConfig?.spacing ?? 4))
+    readonly property bool automaticEdgeGap: CompositorService.isNiri && !isIsland && !usesFrameBarChrome
+    readonly property var edgeGeometry: NiriService.barGeometry(screenName, barPos, effectiveBarThickness, _dpr)
+    property real effectiveSpacing: automaticEdgeGap ? edgeGeometry.gap : isIsland || (FrameTransitionState.effectiveFrameEnabled && usesFrameBarChrome) ? 0 : ((edgeAttached || (flattenForMaximizedWindow && hasMaximizedToplevel)) ? 0 : (barConfig?.spacing ?? 4))
 
     property real renderedSpacing: effectiveSpacing
     readonly property real surfaceSpacing: Math.max(effectiveSpacing, renderedSpacing)
 
     Behavior on renderedSpacing {
-        enabled: (barWindow.hostWindow?.visible ?? false) && !SettingsData.reduceMotion
+        enabled: !barWindow.automaticEdgeGap && (barWindow.hostWindow?.visible ?? false) && !SettingsData.reduceMotion
         NumberAnimation {
             duration: Theme.shortDuration
             easing.type: Easing.OutCubic
@@ -662,27 +665,12 @@ Item {
 
     readonly property int notificationCount: NotificationService.notifications.length
     readonly property real effectiveBarThickness: (FrameTransitionState.effectiveFrameEnabled && usesFrameBarChrome) ? SettingsData.frameBarSize : Theme.barThickness(barConfig?.innerPadding ?? 4, _dpr)
-    readonly property real effectiveBarLengthPadding: {
-        if (barLengthMode === "percent") {
-            const percent = Math.min(100, Math.max(10, barConfig?.barLengthPercent ?? 80));
-            return fittedAvailableLength * (1 - percent / 100) / 2;
-        }
-        if ((FrameTransitionState.effectiveFrameEnabled && usesFrameBarChrome) || (flattenForMaximizedWindow && hasMaximizedToplevel))
-            return 0;
-        const pad = Math.max(0, barConfig?.barLengthPadding ?? 0);
-        const length = isVertical ? height : width;
-        return length > 0 ? Math.min(pad, Math.max(0, length / 2 - renderedSpacing)) : pad;
-    }
-    readonly property real fittedAvailableLength: {
-        const length = isVertical ? topBarMouseArea.height : topBarMouseArea.width;
-        const startGap = isVertical && hasAdjacentTopBar ? 0 : renderedSpacing;
-        const endGap = isVertical && hasAdjacentBottomBar ? 0 : renderedSpacing;
-        return Math.max(0, length - startGap - endGap);
-    }
+    readonly property real fittedAvailableLength: Math.max(0, isVertical ? topBarMouseArea.height : topBarMouseArea.width)
     property real fittedLeadingPad: fitToWidgets ? Math.max(0, topBarContent.fittedLeadingPad) : 0
     property real fittedTrailingPad: fitToWidgets ? Math.max(0, topBarContent.fittedTrailingPad) : 0
-    readonly property int lengthPaddingStartPx: Theme.px(fitToWidgets ? fittedLeadingPad : effectiveBarLengthPadding, _dpr)
-    readonly property int lengthPaddingEndPx: Theme.px(fitToWidgets ? fittedTrailingPad : effectiveBarLengthPadding, _dpr)
+    readonly property real effectiveBarLengthPadding: BarGeometry.lengthPadding(fittedAvailableLength, barLengthMode, barConfig?.barLengthPercent ?? 80, fittedLeadingPad, fittedTrailingPad, _dpr)
+    readonly property real lengthPaddingStartPx: effectiveBarLengthPadding
+    readonly property real lengthPaddingEndPx: effectiveBarLengthPadding
     readonly property bool fitAnimated: fitToWidgets && _fitSettled && (hostWindow?.visible ?? false) && !SettingsData.reduceMotion
 
     Behavior on fittedLeadingPad {
@@ -713,8 +701,8 @@ Item {
     readonly property bool hasAdjacentLeftBar: !isVertical && ShellLayout.adjacentBar(screen, "left", barConfig) !== null
     readonly property bool hasAdjacentRightBar: !isVertical && ShellLayout.adjacentBar(screen, "right", barConfig) !== null
 
-    readonly property real taskbarStartInset: SettingsData.taskbarInsetForEdge(screen, isVertical ? "top" : "left")
-    readonly property real taskbarEndInset: SettingsData.taskbarInsetForEdge(screen, isVertical ? "bottom" : "right")
+    readonly property real taskbarStartInset: isIsland ? SettingsData.taskbarInsetForEdge(screen, isVertical ? "top" : "left") : Math.max(SettingsData.taskbarInsetForEdge(screen, isVertical ? "top" : "left"), SettingsData.taskbarInsetForEdge(screen, isVertical ? "bottom" : "right"))
+    readonly property real taskbarEndInset: isIsland ? SettingsData.taskbarInsetForEdge(screen, isVertical ? "bottom" : "right") : taskbarStartInset
 
     readonly property real barSurfaceThickness: Theme.px(effectiveBarThickness + surfaceSpacing + ((renderBarConfig?.gothCornersEnabled ?? false) && !hasMaximizedToplevel && spansEdge ? _wingR : 0), _dpr) + _shadowBuffer
     readonly property bool islandSheetOut: islandHost?.sheetOut ?? false
@@ -764,7 +752,7 @@ Item {
 
     readonly property bool reserveExclusiveWhenAutoHidden: FrameTransitionState.effectiveFrameEnabled && usesFrameBarChrome && !!barWindow.screen && SettingsData.isScreenInPreferences(barWindow.screen, SettingsData.frameScreenPreferences)
 
-    readonly property real surfaceExclusiveZone: isIsland ? ((islandFree || (islandHost?.floating ?? false)) ? 0 : islandStripThickness) : (!(barConfig?.visible ?? true) || (topBarCore.autoHide && !barWindow.reserveExclusiveWhenAutoHidden)) ? -1 : (barWindow.effectiveBarThickness + effectiveSpacing + (usesFrameBarChrome ? 0 : (barConfig?.bottomGap ?? 0)))
+    readonly property real surfaceExclusiveZone: isIsland ? ((islandFree || (islandHost?.floating ?? false)) ? 0 : islandStripThickness) : (!(barConfig?.visible ?? true) || (topBarCore.autoHide && !barWindow.reserveExclusiveWhenAutoHidden)) ? -1 : automaticEdgeGap ? edgeGeometry.exclusive : (barWindow.effectiveBarThickness + effectiveSpacing + (usesFrameBarChrome ? 0 : (barConfig?.bottomGap ?? 0)))
 
     readonly property alias inputMaskItem: inputMask
 
@@ -1081,13 +1069,13 @@ Item {
 
                 Item {
                     id: barUnitInset
-                    property int spacingPx: Theme.px(barWindow.renderedSpacing, barWindow._dpr)
+                    property real spacingPx: Theme.px(barWindow.renderedSpacing, barWindow._dpr)
                     readonly property int islandBandPx: Theme.px(barWindow.islandStripThickness, barWindow._dpr)
                     anchors.fill: parent
-                    anchors.leftMargin: barWindow.isIsland ? (barWindow.isVertical ? (axis.edge === "left" ? 0 : parent.width - islandBandPx) : barWindow.taskbarStartInset) : !barWindow.isVertical ? spacingPx + barWindow.lengthPaddingStartPx : (axis.edge === "left" ? spacingPx : 0)
-                    anchors.rightMargin: barWindow.isIsland ? (barWindow.isVertical ? (axis.edge === "right" ? 0 : parent.width - islandBandPx) : barWindow.taskbarEndInset) : !barWindow.isVertical ? spacingPx + barWindow.lengthPaddingEndPx : (axis.edge === "right" ? spacingPx : 0)
-                    anchors.topMargin: barWindow.isIsland ? (barWindow.isVertical ? barWindow.taskbarStartInset : (axis.edge === "top" ? 0 : parent.height - islandBandPx)) : barWindow.isVertical ? (barWindow.hasAdjacentTopBar ? 0 : spacingPx) + barWindow.lengthPaddingStartPx : (axis.outerVisualEdge() === "bottom" ? 0 : spacingPx)
-                    anchors.bottomMargin: barWindow.isIsland ? (barWindow.isVertical ? barWindow.taskbarEndInset : (axis.edge === "bottom" ? 0 : parent.height - islandBandPx)) : barWindow.isVertical ? (barWindow.hasAdjacentBottomBar ? 0 : spacingPx) + barWindow.lengthPaddingEndPx : (axis.outerVisualEdge() === "bottom" ? spacingPx : 0)
+                    anchors.leftMargin: barWindow.isIsland ? (barWindow.isVertical ? (axis.edge === "left" ? 0 : parent.width - islandBandPx) : barWindow.taskbarStartInset) : !barWindow.isVertical ? barWindow.lengthPaddingStartPx : (axis.edge === "left" ? spacingPx : 0)
+                    anchors.rightMargin: barWindow.isIsland ? (barWindow.isVertical ? (axis.edge === "right" ? 0 : parent.width - islandBandPx) : barWindow.taskbarEndInset) : !barWindow.isVertical ? barWindow.lengthPaddingEndPx : (axis.edge === "right" ? spacingPx : 0)
+                    anchors.topMargin: barWindow.isIsland ? (barWindow.isVertical ? barWindow.taskbarStartInset : (axis.edge === "top" ? 0 : parent.height - islandBandPx)) : barWindow.isVertical ? barWindow.lengthPaddingStartPx : (axis.outerVisualEdge() === "bottom" ? 0 : spacingPx)
+                    anchors.bottomMargin: barWindow.isIsland ? (barWindow.isVertical ? barWindow.taskbarEndInset : (axis.edge === "bottom" ? 0 : parent.height - islandBandPx)) : barWindow.isVertical ? barWindow.lengthPaddingEndPx : (axis.outerVisualEdge() === "bottom" ? spacingPx : 0)
                     onXChanged: barWindow.refreshBlurRegion()
                     onYChanged: barWindow.refreshBlurRegion()
                     onWidthChanged: barWindow.refreshBlurRegion()

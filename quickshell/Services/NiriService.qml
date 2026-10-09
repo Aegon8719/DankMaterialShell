@@ -9,6 +9,7 @@ import qs.Common
 import qs.Services
 import qs.DCommon.Common as DCommon
 import "../Common/OutputModel.js" as OutputModel
+import "../Common/BarGeometry.js" as BarGeometry
 
 Singleton {
     id: root
@@ -79,6 +80,16 @@ Singleton {
         const updatedWorkspaces = Object.assign({}, root.workspaces);
         updatedWorkspaces[workspaceId] = Object.assign({}, ws, changes);
         setWorkspaces(updatedWorkspaces);
+    }
+
+    function barGeometry(screenName, position, thickness, scale) {
+        const workspace = allWorkspaces.find(ws => ws.output === screenName && ws.is_active);
+        const gaps = workspace?.visible_edge_gaps;
+        // Older compositors do not expose rendered clearances. Do not reuse manual gaps.
+        const index = position === SettingsData.Position.Bottom ? 1
+                    : position === SettingsData.Position.Left ? 2
+                    : position === SettingsData.Position.Right ? 3 : 0;
+        return BarGeometry.edge(gaps?.[index] ?? 0, thickness, scale, workspace?.bar_gap_reference?.[index] ?? 0);
     }
 
     function validate() {
