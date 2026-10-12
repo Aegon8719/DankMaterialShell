@@ -89,7 +89,8 @@ Singleton {
         const index = position === SettingsData.Position.Bottom ? 1
                     : position === SettingsData.Position.Left ? 2
                     : position === SettingsData.Position.Right ? 3 : 0;
-        return BarGeometry.edge(gaps?.[index] ?? 0, thickness, scale, workspace?.bar_gap_reference?.[index] ?? 0);
+        const gap = workspace?.bar_gap_reference?.[index] ?? gaps?.[index] ?? 0;
+        return BarGeometry.edge(gap, thickness, scale, gap);
     }
 
     function validate() {

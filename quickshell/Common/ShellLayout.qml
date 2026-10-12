@@ -191,6 +191,24 @@ Singleton {
             trigger.x -= offset;
             break;
         }
+        if (CompositorService.isNiri && config?.island && !SettingsData.islandFreePlacement(config) && !SettingsData.islandSetting(config, "islandFloating")) {
+            const workspace = NiriService.allWorkspaces.find(ws => ws.output === screen?.name && ws.is_active);
+            const index = edge === 1 ? 1 : edge === 2 ? 2 : edge === 3 ? 3 : 0;
+            const inset = workspace?.visible_edge_gaps?.[index] ?? workspace?.bar_gap_reference?.[index];
+            const side = ["top", "bottom", "left", "right"][edge];
+            const reservation = forScreen(screen)?.edges?.[side]?.reservation;
+            if (inset !== undefined && reservation !== undefined) {
+                const boundary = reservation + inset / CompositorService.getScreenScale(screen);
+                if (edge === 0)
+                    trigger.y = boundary;
+                else if (edge === 1)
+                    trigger.y = screen.height - boundary;
+                else if (edge === 2)
+                    trigger.x = boundary;
+                else
+                    trigger.x = screen.width - boundary;
+            }
+        }
         return trigger;
     }
 

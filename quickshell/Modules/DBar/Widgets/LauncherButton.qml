@@ -6,6 +6,7 @@ import qs.Widgets
 
 BasePill {
     id: root
+    circular: true
 
     property bool isActive: false
     property var hyprlandOverviewLoader: null

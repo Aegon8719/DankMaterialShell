@@ -12,6 +12,7 @@ import "../OverflowLayout.js" as OverflowLayout
 
 BasePill {
     id: root
+    touchEnabled: false
 
     enableBackgroundHover: false
     enableCursor: false
@@ -590,6 +591,15 @@ BasePill {
 
                 BarPillSurface {
                     id: caretButton
+                    BarTouchArea {
+                        edge: root.axis?.edge ?? "top"
+                        onActivated: {
+                            if (root.useOverflowPopup && !root.menuOpen)
+                                root._openOverflowAt(caretButton);
+                            else
+                                root.menuOpen = !root.menuOpen;
+                        }
+                    }
                     width: root.trayItemSize
                     height: root.trayItemSize
                     anchors.centerIn: parent
@@ -673,6 +683,10 @@ BasePill {
 
             BarPillSurface {
                 id: inlineVisualContent
+                BarTouchArea {
+                    edge: root.axis?.edge ?? "top"
+                    onActivated: root.activateInlineTrayItem(trayItem, inlineVisualContent)
+                }
                 width: root.trayItemSize
                 height: root.trayItemSize
                 x: root.isVerticalOrientation ? Math.round((parent.width - width) / 2) : (root.reverseInlineHorizontal ? parent.width - width : 0)
@@ -779,6 +793,11 @@ BasePill {
                     repeat: false
                     onTriggered: dragHandler.longPressing = true
                 }
+            }
+
+            BarTouchArea {
+                edge: root.axis?.edge ?? "top"
+                onActivated: root.activateInlineTrayItem(delegateRoot.trayItem, visualContent)
             }
 
             readonly property int groupCount: root.displayedMainBarItems.length
@@ -928,6 +947,15 @@ BasePill {
 
                 BarPillSurface {
                     id: caretButtonVert
+                    BarTouchArea {
+                        edge: root.axis?.edge ?? "top"
+                        onActivated: {
+                            if (root.useOverflowPopup && !root.menuOpen)
+                                root._openOverflowAt(caretButtonVert);
+                            else
+                                root.menuOpen = !root.menuOpen;
+                        }
+                    }
                     width: root.trayItemSize
                     height: root.trayItemSize
                     anchors.centerIn: parent

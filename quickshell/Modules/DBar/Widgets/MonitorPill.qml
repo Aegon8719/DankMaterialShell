@@ -6,11 +6,17 @@ import qs.DCommon.Widgets
 
 BasePill {
     id: root
+    touchAction: (position, swiped) => {
+        if (root.sortKey !== "")
+            DgopService.setSortBy(root.sortKey);
+        root.activated();
+    }
 
     property string widgetType: ""
     property var widgetData: null
     property var dgopModules: null
     property string iconName: ""
+    property bool showIcon: true
     property real level: 0
     property real warnLevel: 0
     property real dangerLevel: 0
@@ -52,6 +58,7 @@ BasePill {
                 spacing: Theme.hairline(root.dpr)
 
                 DIcon {
+                    visible: root.showIcon
                     name: root.iconName
                     size: root.iconSize
                     color: root.levelColor
@@ -86,6 +93,7 @@ BasePill {
                 spacing: Theme.spacingXS
 
                 DIcon {
+                    visible: root.showIcon
                     name: root.iconName
                     size: root.iconSize
                     color: root.levelColor

@@ -55,6 +55,7 @@ Item {
     property bool notch: false
     property real notchRadius: Theme.windowRadius
     property color bandColor: Theme.hostSurface
+    readonly property bool separateHomeWidgets: root.controller.activeActivity === "home" && !root.controller.expanded
     property bool compactBackground: false
     property color compactBackgroundColor: "transparent"
     readonly property bool embedded: root.chrome !== "own"
@@ -360,8 +361,8 @@ Item {
         width: root.currentVisualWidth
         height: root.currentVisualHeight
         // Embedded, the band already paints the in-band strip; overhangFill draws the rest, so a translucent band never double-alphas.
-        color: root.embedded ? "transparent" : root.effectiveSurfaceColor
-        border.width: root.notificationAccentColor !== "transparent" ? 1.5 : root.embedded ? 0 : (root.highContrast ? 2 : (root.popupStyled && !root.notch ? BlurService.borderWidth : 0))
+        color: root.embedded || root.separateHomeWidgets ? "transparent" : root.effectiveSurfaceColor
+        border.width: root.separateHomeWidgets ? 0 : root.notificationAccentColor !== "transparent" ? 1.5 : root.embedded ? 0 : (root.highContrast ? 2 : (root.popupStyled && !root.notch ? BlurService.borderWidth : 0))
         border.color: root.notificationAccentColor !== "transparent" ? root.notificationAccentColor : (root.highContrast ? Theme.outlineStrong : (root.popupStyled && !root.notch ? BlurService.borderColor : "transparent"))
 
         Behavior on color {
@@ -380,7 +381,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            visible: root.compactBackground && opacity > 0
+            visible: root.compactBackground && !root.separateHomeWidgets && opacity > 0
             opacity: 1 - root.morphProgress
             color: root.compactBackgroundColor
             topLeftRadius: parent.topLeftRadius
@@ -391,7 +392,7 @@ Item {
 
         MouseArea {
             anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
+            acceptedButtons: root.separateHomeWidgets ? Qt.NoButton : Qt.LeftButton
             enabled: !root.controller.expanded || !root.controller.activityOwnsBlankClicks
             onClicked: {
                 SettingsData.recordBarInteraction(root.effectiveScreen, root.controller.barConfig?.id);
@@ -483,7 +484,7 @@ Item {
 
         MouseArea {
             anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
+            acceptedButtons: root.separateHomeWidgets ? Qt.NoButton : Qt.LeftButton
             onClicked: {
                 SettingsData.recordBarInteraction(root.effectiveScreen, root.controller.barConfig?.id);
                 root.controller.requestToggle(true);

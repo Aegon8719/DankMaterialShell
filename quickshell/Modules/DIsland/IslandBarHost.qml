@@ -383,6 +383,7 @@ Item {
         inputSuspended: PopoutManager.screenshotActive
         alongOffset: root.freeMode || root.embedded ? 0 : Math.max(-root.maximumAlongOffset, Math.min(root.maximumAlongOffset, root.setting("islandAlongOffset")))
         outerGap: root.outerGap
+        barBody: root.barBody
         compactThickness: root.compactThickness
         cornerRadius: root.connectedChrome ? Theme.connectedSurfaceRadius : Theme.windowRadius
         pillRadius: BarMetrics.pillRadius(root.compactThickness, root.barConfig?.widgetStyle ?? "pills")

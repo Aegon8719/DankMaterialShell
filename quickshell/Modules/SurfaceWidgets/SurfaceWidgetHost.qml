@@ -62,7 +62,7 @@ Loader {
     readonly property bool widgetEnabled: widgetData?.enabled !== false
     readonly property bool loadedOnDemand: BarWidgetService.onDemandWidgetIds.includes(widgetId)
 
-    active: (widgetEnabled || loadedOnDemand) && orientationMatches && getWidgetVisible(widgetId, DgopService.dgopAvailable) && (!["music", "mediaActivity"].includes(widgetId) || MprisController.activePlayer !== null)
+    active: (widgetEnabled || loadedOnDemand) && orientationMatches && getWidgetVisible(widgetId, DgopService.dgopAvailable) && (!["music", "mediaActivity"].includes(widgetId) || widgetData?.showWhenIdle === true || MprisController.activePlayer !== null)
     sourceComponent: getWidgetComponent(widgetId, components)
 
     signal contentItemReady(var item)

@@ -42,8 +42,9 @@ Item {
         case "os":
         case "dank":
             return mode;
+        case "search":
         case "apps":
-            return "apps";
+            return mode;
         default:
             return fallback;
         }
@@ -76,9 +77,9 @@ Item {
     height: size
 
     DIcon {
-        visible: root.resolvedMode === "apps"
+        visible: root.resolvedMode === "apps" || root.resolvedMode === "search"
         anchors.centerIn: parent
-        name: "apps"
+        name: root.resolvedMode === "search" ? "search" : "apps"
         size: root.appsIconSize
         color: root.appsIconColor
     }

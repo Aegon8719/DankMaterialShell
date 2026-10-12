@@ -11,6 +11,7 @@ import qs.Widgets
 
 BasePill {
     id: root
+    touchEnabled: false
 
     enableBackgroundHover: false
     enableCursor: false
@@ -388,6 +389,18 @@ BasePill {
                     id: itemRipple
                     rippleColor: isFocused ? Theme.onSelectedContainer : Theme.onSurface
                     cornerRadius: visualContent.radius
+                }
+            }
+
+            BarTouchArea {
+                edge: root.axis?.edge ?? "top"
+                onActivated: {
+                    if (isGrouped && windowCount > 1) {
+                        const current = groupData.windows.findIndex(w => w.toplevel.activated);
+                        CompositorService.activateToplevel(groupData.windows[(current + 1) % groupData.windows.length].toplevel);
+                    } else if (toplevelObject) {
+                        CompositorService.toggleToplevel(toplevelObject);
+                    }
                 }
             }
 

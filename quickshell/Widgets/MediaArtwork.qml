@@ -9,6 +9,8 @@ Item {
     id: root
 
     property string artUrl: ""
+    property color placeholderColor: Theme.primaryContainer
+    property color placeholderIconColor: Theme.accentOnPrimaryContainer
     property real placeholderIconSize: Math.min(width, height) * 0.46
     property real cornerRadius: Math.min(width, height) * 0.22
     readonly property real renderScale: Window.window?.devicePixelRatio ?? Screen.devicePixelRatio
@@ -17,14 +19,14 @@ Item {
     ClippingRectangle {
         anchors.fill: parent
         radius: root.cornerRadius
-        color: Theme.primaryContainer
+        color: root.placeholderColor
         antialiasing: true
 
         DIcon {
             anchors.centerIn: parent
             name: "music_note"
             size: root.placeholderIconSize
-            color: Theme.accentOnPrimaryContainer
+            color: root.placeholderIconColor
             visible: artwork.status !== Image.Ready
         }
 

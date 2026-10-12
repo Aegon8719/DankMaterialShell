@@ -27,6 +27,7 @@ Item {
     property bool enableBackgroundHover: true
     property bool enableCursor: true
     property bool isAutoHideBar: false
+    property bool circular: false
     readonly property bool isMouseHovered: mouseArea.containsMouse || visualContent.hovered
     property bool isLeftBarEdge: false
     property bool isRightBarEdge: false
@@ -40,8 +41,8 @@ Item {
     readonly property real dpr: parentScreen ? CompositorService.getScreenScale(parentScreen) : 1
     readonly property real horizontalPadding: Theme.snap((barConfig?.widgetPadding ?? 8) * (widgetThickness / 30), dpr)
     readonly property real contentThickness: widgetThickness - horizontalPadding * 2
-    readonly property real visualWidth: Theme.snap(isVerticalOrientation ? widgetThickness : (contentLoader.item ? (contentLoader.item.implicitWidth + horizontalPadding * 2) : 0), dpr)
-    readonly property real visualHeight: Theme.snap(isVerticalOrientation ? (contentLoader.item ? (contentLoader.item.implicitHeight + horizontalPadding * 2) : 0) : widgetThickness, dpr)
+    readonly property real visualWidth: Theme.snap(circular || isVerticalOrientation ? widgetThickness : (contentLoader.item ? Math.max(widgetThickness, contentLoader.item.implicitWidth + horizontalPadding * 2) : 0), dpr)
+    readonly property real visualHeight: Theme.snap(circular ? widgetThickness : isVerticalOrientation ? (contentLoader.item ? Math.max(widgetThickness, contentLoader.item.implicitHeight + horizontalPadding * 2) : 0) : widgetThickness, dpr)
     readonly property alias visualContent: visualContent
     readonly property alias contentItem: contentLoader.item
     readonly property real barEdgeExtension: BarMetrics.fittsReach
@@ -102,6 +103,25 @@ Item {
             easing.type: Easing.BezierSpline
             easing.bezierCurve: Theme.expressiveCurves.expressiveFastSpatial
         }
+    }
+
+    property bool touchEnabled: true
+    property var touchAction: (position, swiped) => {
+        const actions = ["triggerPopout", "toggleBatteryPopup", "toggleVpnPopup", "toggleLayoutPopup",
+            "clipboardClicked", "colorPickerRequested"];
+        for (const action of actions) {
+            if (typeof root[action] === "function") {
+                root[action]();
+                return;
+            }
+        }
+        root.handlePress({button: Qt.LeftButton, x: position.x, y: position.y}, root);
+    }
+
+    BarTouchArea {
+        enabled: root.touchEnabled && root.surfaceLive
+        edge: root.axis?.edge ?? "top"
+        onActivated: (position, swiped) => root.touchAction(position, swiped)
     }
 
     signal clicked

@@ -17,8 +17,12 @@ Item {
     property real contentScale: 1
     property bool isVertical: false
     property real artworkSize: Theme.iconSizeLarge
+    property real leadingInset: Theme.spacingS
+    property real trailingInset: Theme.spacingXS
     readonly property real textGutter: Theme.spacingXS
     readonly property real cavaWidth: 20
+    readonly property bool showWaveform: root.mediaModel.available
+    readonly property real waveformSlot: showWaveform ? cavaWidth + Theme.spacingXS : 0
     readonly property real minTextWidth: 48
     readonly property real clockLeadPad: Theme.spacingXS / 2
     readonly property real clockTrailPad: Theme.spacingS
@@ -37,7 +41,7 @@ Item {
     property bool clockVisible: false
     readonly property real naturalTextWidth: Math.max(root.minTextWidth, titleMetrics.width, root.dense ? 0 : artistMetrics.width) + root.textGutter * 2
     readonly property real measuredWidth: {
-        let width = Theme.spacingS + root.artworkSize + Theme.spacingXS + root.cavaWidth + Theme.spacingXS + root.naturalTextWidth + Theme.spacingXS;
+        let width = root.leadingInset + root.artworkSize + Theme.spacingXS + root.waveformSlot + root.naturalTextWidth + root.trailingInset;
         if (root.clockVisible)
             width += clockText.width + Theme.spacingXS * 2 + Theme.spacingS;
         return width;
@@ -75,13 +79,15 @@ Item {
 
         anchors {
             left: parent.left
-            leftMargin: Theme.spacingS
+            leftMargin: root.leadingInset
             verticalCenter: parent.verticalCenter
         }
         visible: !root.isVertical
         width: root.artworkSize
         height: width
         artUrl: root.mediaModel.artUrl
+        placeholderColor: Theme.surfaceTextHover
+        placeholderIconColor: Theme.surfaceText
     }
 
     Row {
@@ -90,13 +96,15 @@ Item {
             left: artwork.right
             leftMargin: Theme.spacingXS
             right: root.clockVisible ? rightActivity.left : parent.right
-            rightMargin: Theme.spacingXS
+            rightMargin: root.trailingInset
             verticalCenter: parent.verticalCenter
         }
         height: root.artworkSize
         spacing: Theme.spacingXS
 
         AudioVisualization {
+            visible: root.showWaveform
+            enabled: root.enabled && visible
             anchors.verticalCenter: parent.verticalCenter
             width: root.cavaWidth
             height: parent.height
@@ -105,7 +113,7 @@ Item {
         }
 
         Column {
-            width: parent.width - root.cavaWidth - parent.spacing
+            width: parent.width - root.waveformSlot
             anchors.verticalCenter: parent.verticalCenter
             spacing: 0
 
@@ -194,9 +202,13 @@ Item {
             width: root.verticalArtworkSize
             height: width
             artUrl: root.mediaModel.artUrl
+            placeholderColor: Theme.surfaceTextHover
+            placeholderIconColor: Theme.surfaceText
         }
 
         AudioVisualization {
+            visible: root.showWaveform
+            enabled: root.enabled && visible
             anchors.horizontalCenter: parent.horizontalCenter
             width: root.verticalArtworkSize
             height: root.cavaWidth

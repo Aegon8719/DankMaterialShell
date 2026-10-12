@@ -12,6 +12,27 @@ import qs.Widgets
 
 BasePill {
     id: root
+    touchAction: (position, swiped) => {
+        if (swiped) {
+            if (CompositorService.isNiri)
+                NiriService.send({Action: {OpenOverview: {}}});
+            else
+                CompositorService.toggleOverview(root.effectiveScreenName);
+            return;
+        }
+        for (let index = 0; index < workspaceRepeater.count; index++) {
+            const item = workspaceRepeater.itemAt(index);
+            if (!item || item.isPlaceholder)
+                continue;
+            const point = item.mapFromItem(root, position.x, position.y);
+            if (point.x < 0 || point.y < 0 || point.x >= item.width || point.y >= item.height)
+                continue;
+            if (!item.focusWindowAt(point.x, point.y))
+                root.switchToWorkspaceByModelData(root.workspaceList[index]);
+            return;
+        }
+    }
+
 
     enableBackgroundHover: false
 

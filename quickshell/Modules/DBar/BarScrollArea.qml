@@ -13,8 +13,6 @@ MouseArea {
     property string yBehavior: "workspace"
     property string screenName: ""
     property var barConfig: null
-    property real touchpadAccumulatorX: 0
-    property real touchpadAccumulatorY: 0
     property real mouseAccumulatorX: 0
     property real mouseAccumulatorY: 0
     property bool actionInProgress: false
@@ -56,15 +54,7 @@ MouseArea {
         cooldownTimer.restart();
     }
 
-    function accumulateX(isTouchpad, delta, behavior) {
-        if (isTouchpad) {
-            touchpadAccumulatorX += delta;
-            if (Math.abs(touchpadAccumulatorX) < 500)
-                return;
-            fire(touchpadAccumulatorX, behavior);
-            touchpadAccumulatorX = 0;
-            return;
-        }
+    function accumulateX(delta, behavior) {
         mouseAccumulatorX += delta;
         if (Math.abs(mouseAccumulatorX) < 120)
             return;
@@ -72,15 +62,7 @@ MouseArea {
         mouseAccumulatorX = 0;
     }
 
-    function accumulateY(isTouchpad, delta, behavior) {
-        if (isTouchpad) {
-            touchpadAccumulatorY += delta;
-            if (Math.abs(touchpadAccumulatorY) < 500)
-                return;
-            fire(touchpadAccumulatorY, behavior);
-            touchpadAccumulatorY = 0;
-            return;
-        }
+    function accumulateY(delta, behavior) {
         mouseAccumulatorY += delta;
         if (Math.abs(mouseAccumulatorY) < 120)
             return;
@@ -92,18 +74,22 @@ MouseArea {
         wheel.accepted = false;
         if (!scrollEnabled || actionInProgress)
             return;
+        // Wayland finger scrolling carries a phase, including its zero-delta begin/end events.
+        if (wheel.phase !== Qt.NoScrollPhase || WheelInput.isTouchpad(wheel))
+            return;
 
         const deltaY = wheel.angleDelta.y;
         const deltaX = wheel.angleDelta.x;
-        const isTouchpad = WheelInput.isTouchpad(wheel);
 
         if (CompositorService.isNiri && xBehavior !== "none" && Math.abs(deltaX) > Math.abs(deltaY)) {
-            accumulateX(isTouchpad, deltaX, xBehavior);
+            wheel.accepted = true;
+            accumulateX(deltaX, xBehavior);
             return;
         }
         if (yBehavior === "none")
             return;
-        accumulateY(isTouchpad, deltaY, yBehavior);
+        wheel.accepted = deltaY !== 0;
+        accumulateY(deltaY, yBehavior);
     }
 
     onWheel: wheel => processWheel(wheel)

@@ -7,6 +7,7 @@ import "KeyboardLayoutLabels.js" as KeyboardLayoutLabels
 
 BasePill {
     id: root
+    touchAction: (position, swiped) => KeyboardLayoutService.cycle()
 
     property var widgetData: null
     property bool compactMode: SettingsData.widgetOption("keyboard_layout_name", widgetData, "keyboardLayoutNameCompactMode")

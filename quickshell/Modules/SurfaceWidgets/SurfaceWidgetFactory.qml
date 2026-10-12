@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell.Services.SystemTray
 import qs.Common
 import qs.Services
+import qs.Modules.DDash
 import qs.Modules.DBar.Widgets
 import "../DBar/WidgetModel.js" as WidgetModel
 
@@ -368,6 +369,12 @@ Item {
         }
     }
 
+    Loader {
+        id: clockCalendarLoader
+        active: false
+        sourceComponent: ClockCalendarPopout {}
+    }
+
     Component {
         id: clockComponent
 
@@ -394,13 +401,10 @@ Item {
             onClockClicked: {
                 const section = root.getWidgetSection(parent) || "center";
                 root.openWidgetPopout({
-                    loader: PopoutService.dankDashPopoutLoader,
+                    loader: clockCalendarLoader,
                     widgetItem: clockWidget,
                     section,
-                    useCenterSection: true,
-                    triggerSource: root._dashTriggerSource(section, "overview"),
-                    islandActivity: "home",
-                    prepare: popout => popout.requestTab("overview"),
+                    triggerSource: root._dashTriggerSource(section, "clock-calendar"),
                     mode: "click",
                     setTriggerScreen: true
                 });

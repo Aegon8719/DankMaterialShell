@@ -11,6 +11,15 @@ import qs.Widgets
 
 BasePill {
     id: root
+    touchAction: (position, swiped) => {
+        if (!activeWindow || !root.parentScreen)
+            return;
+        focusedWindowPopoutLoader.active = true;
+        if (!focusedWindowPopoutLoader.item)
+            return;
+        root.syncPopoutState();
+        focusedWindowPopoutLoader.item.toggle();
+    }
 
     property var widgetData: null
     property bool compactMode: SettingsData.widgetOption("focusedWindow", widgetData, "focusedWindowCompactMode")

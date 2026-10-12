@@ -6,6 +6,7 @@ import qs.DCommon.Widgets
 
 BasePill {
     id: root
+    circular: true
 
     property bool hasUnread: false
     property bool isActive: false

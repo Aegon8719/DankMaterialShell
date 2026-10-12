@@ -66,6 +66,7 @@ Item {
     signal popoutClosed
     signal closeAnimationFinished
     signal backgroundClicked
+    onBackgroundClicked: close()
 
     readonly property var contentLoader: impl.item ? impl.item.contentLoader : _fallbackContentLoader
     readonly property var overlayLoader: impl.item ? impl.item.overlayLoader : _fallbackOverlayLoader

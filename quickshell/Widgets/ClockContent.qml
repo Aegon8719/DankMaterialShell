@@ -8,6 +8,7 @@ Item {
     id: root
 
     property bool vertical: false
+    property bool compactTimestamp: false
     property bool live: visible && enabled
     property string displayMode: "both"
     property bool dateFirst: false
@@ -20,13 +21,13 @@ Item {
     property var locale: I18n.locale()
     property date date: systemClock.date
 
-    readonly property string timeText: date.toLocaleTimeString(locale, SettingsData.getEffectiveTimeFormat())
+    readonly property string timeText: compactTimestamp ? date.toLocaleDateString(locale, "yyyy/MM/dd") + " " + date.toLocaleTimeString(locale, "HH:mm:ss") : date.toLocaleTimeString(locale, SettingsData.getEffectiveTimeFormat())
     readonly property string dateText: date.toLocaleDateString(locale, SettingsData.getEffectiveDateFormat())
-    readonly property var timeLines: vertical ? stackedTime() : [timeText]
+    readonly property var timeLines: vertical ? (compactTimestamp ? stackedDate().concat(stackedTime()) : stackedTime()) : [timeText]
     readonly property var dateLines: vertical ? stackedDate() : [dateText]
     readonly property bool showTime: displayMode !== "date"
-    readonly property bool showDate: displayMode !== "time"
-    readonly property bool split: segmented && !vertical && showTime && showDate
+    readonly property bool showDate: !compactTimestamp && displayMode !== "time"
+    readonly property bool split: !compactTimestamp && segmented && !vertical && showTime && showDate
     readonly property real splitOffset: split ? layout.x + separator.x + separator.width / 2 : 0
 
     implicitWidth: vertical ? availableWidth : layout.implicitWidth
@@ -37,6 +38,8 @@ Item {
     }
 
     function stackedTime() {
+        if (compactTimestamp)
+            return [pad(date.getHours()), pad(date.getMinutes()), pad(date.getSeconds())];
         const hours = date.getHours();
         const lines = [pad(SettingsData.use24HourClock ? hours : (hours % 12 || 12)), pad(date.getMinutes())];
         if (SettingsData.showSeconds)
@@ -47,6 +50,8 @@ Item {
     }
 
     function stackedDate() {
+        if (compactTimestamp)
+            return [String(date.getFullYear()), pad(date.getMonth() + 1), pad(date.getDate())];
         const format = locale.dateFormat(Locale.ShortFormat);
         const day = pad(date.getDate());
         const month = pad(date.getMonth() + 1);
@@ -65,15 +70,23 @@ Item {
             model: stack.lines.length
 
             NumericText {
+                id: clockText
                 required property int index
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: stack.lines[index]
                 reserveText: text.replace(/\d/g, "0")
-                width: Math.ceil(reservedWidth)
+                width: Math.ceil(fixedMetrics.advanceWidth)
                 horizontalAlignment: Text.AlignHCenter
                 isMonospace: false
+                font.features: ({"tnum": 1})
                 color: stack.color
                 font.pixelSize: root.fontSize
+
+                StyledTextMetrics {
+                    id: fixedMetrics
+                    font: clockText.font
+                    text: root.compactTimestamp && !root.vertical ? "8888/88/88 88:88:88" : clockText.reserveText
+                }
             }
         }
     }
@@ -83,7 +96,7 @@ Item {
 
         anchors.centerIn: parent
         columns: root.vertical ? 1 : Math.max(1, layout.visibleChildren.length)
-        spacing: root.vertical ? 0 : Theme.spacingS
+        spacing: root.vertical || root.compactTimestamp ? 0 : Theme.spacingS
 
         Loader {
             sourceComponent: root.dateFirst && root.showDate || !root.showTime ? dateComponent : timeComponent
@@ -91,7 +104,7 @@ Item {
 
         Item {
             id: separator
-            visible: root.showTime && root.showDate
+            visible: !root.compactTimestamp && root.showTime && root.showDate
             width: root.vertical ? root.availableWidth : (root.split ? Theme.groupedListGap : dot.implicitWidth)
             height: root.vertical ? Theme.spacingM : root.fontSize
 
@@ -140,7 +153,7 @@ Item {
     SystemClock {
         id: systemClock
         enabled: root.live
-        precision: SettingsData.showSeconds ? SystemClock.Seconds : SystemClock.Minutes
+        precision: root.compactTimestamp || SettingsData.showSeconds ? SystemClock.Seconds : SystemClock.Minutes
     }
 
     Connections {

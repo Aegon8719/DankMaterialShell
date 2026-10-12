@@ -17,7 +17,8 @@ Card {
     property date selectedDate: systemClock.date
     property var selectedDateEvents: []
     readonly property bool hasEvents: selectedDateEvents && selectedDateEvents.length > 0
-    readonly property bool canCreate: CalendarService.canCreateEvents
+    property bool eventEditingEnabled: true
+    readonly property bool canCreate: eventEditingEnabled && CalendarService.canCreateEvents
 
     property int eventsRevision: 0
 

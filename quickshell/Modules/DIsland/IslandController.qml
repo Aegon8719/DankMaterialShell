@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import qs.Common
+import qs.Services
 import qs.Modals.Clipboard
 import qs.Modals.DLauncherV2.Components
 import qs.Modules.ControlCenter
@@ -11,6 +12,7 @@ import qs.Modules.DDash
 QtObject {
     id: root
 
+    property var barBody: null
     property string interactionMode: "click"
     property bool hoverExpanded: false
     property bool inputSuspended: false
@@ -86,12 +88,11 @@ QtObject {
     readonly property real compactFaceThickness: BarMetrics.compactFaceThickness(compactThickness)
     readonly property real compactIconSize: Math.max(14, Math.min(32, compactThickness - 8))
     property bool homeCompactTight: false
-    readonly property real homeCompactFaceThickness: homeCompactTight ? Math.max(16, Math.min(32, compactThickness - 8)) : compactFaceThickness
+    readonly property real homeCompactFaceThickness: root.barBody?.effectiveBarThickness ?? Theme.barThickness(root.barConfig?.innerPadding ?? 4, root.screen ? CompositorService.getScreenScale(root.screen) : 1)
 
     property int unreadNotificationCount: 0
     readonly property bool homeNotificationBadge: (root.dotMode || SettingsData.islandHomeGroupEnabled(root.barConfig, "notifications")) && unreadNotificationCount > 0
     readonly property bool homeWeatherEnabled: SettingsData.weatherEnabled && SettingsData.islandHomeGroupEnabled(root.barConfig, "weather")
-    readonly property real homeSlotMargin: homeCompactTight ? Theme.spacingS : Theme.spacingM
     property real homeContentLength: 200
     property real mediaContentLength: 360
     property real dashboardAvailableWidth: 1920
@@ -376,7 +377,7 @@ QtObject {
     property string homeVolumeDisplay: "both"
     property string homeBrightnessDisplay: "both"
 
-    readonly property real homeCompactLength: Math.ceil(homeSlotMargin * 2 + Math.max(homeContentLength, 1))
+    readonly property real homeCompactLength: Math.ceil(Math.max(homeContentLength, 1))
     readonly property real mediaCompactLength: Math.ceil(Math.max(1, mediaContentLength))
 
     // Corners touching the attached screen edge stay tighter than the ones facing the desktop.
@@ -450,7 +451,13 @@ QtObject {
     function usesDotFace(activityId) {
         return root.dotMode && root.dotTransientActivities.indexOf(activityId) === -1;
     }
-    readonly property var homeCompactTarget: pillTarget(homeCompactLength, homeCompactFaceThickness)
+    readonly property var homeCompactTarget: {
+        const target = pillTarget(homeCompactLength, homeCompactFaceThickness);
+        // Satellite widgets centre in the reserved strip, independent of the island's outer gap.
+        if (root.barBody?.isIsland && !root.freeMode && !root.dotMode)
+            target.offsetCross = (root.barBody.islandStripThickness - homeCompactFaceThickness) / 2;
+        return target;
+    }
     readonly property var mediaCompactTarget: pillTarget(mediaCompactLength, compactFaceThickness)
     readonly property var homeExpandedTarget: dashboardTargetFor("home")
     readonly property var mediaExpandedTarget: dashboardTargetFor("media")
@@ -471,7 +478,7 @@ QtObject {
     readonly property bool transientActive: systemActivityActive || notificationActive
     readonly property bool timeoutSuspended: pointerInside || (expanded && !notificationActive)
     readonly property bool activityOwnsBlankClicks: blankClickOwners.indexOf(activeActivity) !== -1
-    readonly property bool hoverExpandEnabled: root.interactionMode === "hybrid" && !root.systemActivityActive
+    readonly property bool hoverExpandEnabled: root.interactionMode === "hybrid" && !root.systemActivityActive && root.activeActivity !== "home"
     function compactTargetFor(activityId) {
         if (root.usesDotFace(activityId))
             return dotCompactTarget;

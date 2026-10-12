@@ -39,5 +39,6 @@ DCard {
 
     property string entryId: ""
 
-    readonly property var options: DashRegistry.resolvedOptions(entryId)
+    property var fixedOptions: null
+    readonly property var options: fixedOptions ?? DashRegistry.resolvedOptions(entryId)
 }

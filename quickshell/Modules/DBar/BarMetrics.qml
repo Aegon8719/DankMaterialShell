@@ -27,12 +27,12 @@ Singleton {
     function pillRadius(thickness, style) {
         if (style === "flat")
             return Math.min(Theme.cornerRadiusS, thickness / 2);
-        if (thickness < compactPillThickness)
-            return Math.min(Theme.cornerRadiusM, thickness / 2);
         return Theme.fullRadius(thickness, thickness);
     }
 
     function cornerRadius(thickness, style, joined, pressProgress) {
+        if (style === "pills")
+            return Theme.fullRadius(thickness, thickness);
         const resting = joined ? Math.min(segmentInnerRadius, thickness / 2) : pillRadius(thickness, style);
         const pressed = Math.min(resting, joined || style === "flat" ? segmentPressedInnerRadius : pressedRadius);
         return Math.max(0, resting + (pressed - resting) * Math.max(0, Math.min(1, pressProgress)));
@@ -40,6 +40,11 @@ Singleton {
 
     function widgetStyle(barConfig) {
         return barConfig?.widgetStyle ?? "pills";
+    }
+
+    function widgetSpacing(barConfig, noBackground, outlineThickness) {
+        const segmented = widgetStyle(barConfig) === "segments" && !noBackground;
+        return (segmented ? segmentGap : noBackground ? bareGap : pillGap) + outlineThickness * 2;
     }
 
     // workspace indicator extents as fractions of the widget thickness: along the bar (compact/active) and across it (slim/activeSlim)
