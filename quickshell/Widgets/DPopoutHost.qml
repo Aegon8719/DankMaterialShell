@@ -1804,9 +1804,9 @@ Item {
             readonly property alias contentWrapper: contentWrapper
             readonly property alias blur: popoutBlur
             readonly property real surfaceRadius: root.usesConnectedSurfaceChrome ? Theme.connectedSurfaceRadius : Theme.windowRadius
-            readonly property color surfaceColor: root.usesConnectedSurfaceChrome ? Theme.connectedSurfaceColor : Theme.readableSurface
+            readonly property color surfaceColor: root.popoutHandle.drawBackground ? (root.usesConnectedSurfaceChrome ? Theme.connectedSurfaceColor : Theme.readableSurface) : "transparent"
             readonly property color surfaceBorderColor: root.usesConnectedSurfaceChrome ? Theme.withAlpha(BlurService.borderColor, 0) : BlurService.borderColor
-            readonly property real surfaceBorderWidth: root.usesConnectedSurfaceChrome ? 0 : BlurService.borderWidth
+            readonly property real surfaceBorderWidth: !root.popoutHandle.drawBackground || root.usesConnectedSurfaceChrome ? 0 : BlurService.borderWidth
             readonly property real surfaceTopLeftRadius: root.usesConnectedSurfaceChrome && (contentContainer.barTop || contentContainer.barLeft) ? 0 : surfaceRadius
             readonly property real surfaceTopRightRadius: root.usesConnectedSurfaceChrome && (contentContainer.barTop || contentContainer.barRight) ? 0 : surfaceRadius
             readonly property real surfaceBottomLeftRadius: root.usesConnectedSurfaceChrome && (contentContainer.barBottom || contentContainer.barLeft) ? 0 : surfaceRadius

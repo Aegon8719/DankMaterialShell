@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell.Services.SystemTray
 import qs.Common
 import qs.Services
+import qs.Widgets
 import qs.Modules.DDash
 import qs.Modules.DBar.Widgets
 import "../DBar/WidgetModel.js" as WidgetModel
@@ -419,16 +420,35 @@ Item {
             onClicked: {
                 const section = root.getWidgetSection(parent);
                 root.openWidgetPopout({
-                    loader: PopoutService.dankDashPopoutLoader,
+                    loader: mediaPlayerLoader,
                     widgetItem: activityWidget,
                     section,
-                    useCenterSection: true,
                     triggerSource: root._dashTriggerSource(section, "media"),
-                    islandActivity: "media",
-                    prepare: popout => popout.requestTab("media"),
                     mode: "click",
                     setTriggerScreen: true
                 });
+            }
+        }
+    }
+
+    Loader {
+        id: mediaPlayerLoader
+        active: false
+        sourceComponent: DPopout {
+            id: mediaPopout
+            property var triggerScreen: null
+            screen: triggerScreen
+            layerNamespace: "dms:media-player"
+            drawBackground: false
+            popupWidth: DashMetrics.contentWidthFor(SettingsData.showWeekNumber, DashMetrics.panelColumnsFor("media"))
+            popupHeight: contentLoader.item?.implicitHeight ?? DashMetrics.tabMinHeight
+            content: Component {
+                MediaPlayerTab {
+                    width: mediaPopout.popupWidth
+                    height: implicitHeight
+                    live: mediaPopout.shouldBeVisible
+                    contentViewport: this
+                }
             }
         }
     }

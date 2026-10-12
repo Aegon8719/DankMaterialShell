@@ -35,6 +35,7 @@ Item {
     readonly property alias transientSurfaceTracker: _transientSurfaceTracker
     readonly property bool effectiveHoverDismissSuspended: hoverDismissSuspended || (transientSurfaceTracker?.active ?? false)
     property bool backgroundInteractive: true
+    property bool drawBackground: true
     property bool contentHandlesKeys: false
     property bool fullHeightSurface: false
     property real minimumSurfaceWidth: 0
