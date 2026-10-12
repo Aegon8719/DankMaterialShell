@@ -1,199 +1,64 @@
-# DankMaterialShell
+# DankMaterialShell for Conscia
 
-<div align="center">
-  <a href="https://danklinux.com">
-    <img src="assets/danklogo.svg" alt="DankMaterialShell" width="200">
-  </a>
+Conscia 的桌面 Shell，基于 DankMaterialShell、Quickshell 和 Go，提供状态栏、搜索、通知、剪贴板、日历、媒体、系统控制、锁屏与后台服务。
 
-### A modern desktop shell for Wayland
+配套合成器为 [niri Conscia 分支](https://github.com/Aegon8719/niri)，安装、默认配置和成对版本锁由 [ConsciaDesktop](https://github.com/Aegon8719/ConsciaDesktop) 管理。本仓库保留 DMS 的通用设置和插件接口；以下默认外观由 ConsciaDesktop 配置提供。
 
-Built with [Quickshell](https://quickshell.org/) and [Go](https://go.dev/)
+## 状态栏
 
-[![Documentation](https://img.shields.io/badge/docs-danklinux.com-9ccbfb?style=for-the-badge&labelColor=101418)](https://danklinux.com/docs)
-[![GitHub stars](https://img.shields.io/github/stars/AvengeMedia/DankMaterialShell?style=for-the-badge&labelColor=101418&color=ffd700)](https://github.com/AvengeMedia/DankMaterialShell/stargazers)
-[![GitHub License](https://img.shields.io/github/license/AvengeMedia/DankMaterialShell?style=for-the-badge&labelColor=101418&color=b9c8da)](https://github.com/AvengeMedia/DankMaterialShell/blob/master/LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/AvengeMedia/DankMaterialShell?style=for-the-badge&labelColor=101418&color=9ccbfb)](https://github.com/AvengeMedia/DankMaterialShell/releases)
-[![Arch version](https://img.shields.io/archlinux/v/extra/x86_64/dms-shell?style=for-the-badge&labelColor=101418&color=9ccbfb)](https://archlinux.org/packages/extra/x86_64/dms-shell/)
-[![AUR version (git)](<https://img.shields.io/aur/version/dms-shell-git?style=for-the-badge&labelColor=101418&color=9ccbfb&label=AUR%20(git)>)](https://aur.archlinux.org/packages/dms-shell-git)
-[![Ko-Fi donate](https://img.shields.io/badge/donate-kofi?style=for-the-badge&logo=ko-fi&logoColor=ffffff&label=ko-fi&labelColor=101418&color=f16061&link=https%3A%2F%2Fko-fi.com%2Fdanklinux)](https://ko-fi.com/danklinux)
+默认使用 island 模式，中央从左到右为 **搜索、通知、剪贴板、时钟、媒体**。左侧显示工作区，右侧显示托盘、CPU／内存、电池和控制中心。
 
-</div>
+中央和两侧共用组件加载器、尺寸、边距和背景规则，在同一状态栏区域内居中。搜索、通知和剪贴板为圆形，其余组件使用胶囊形。默认 `innerPadding: 10`，文字和图标缩放均为 `1.1`。空工作区和有窗口时使用相同的布局参考间隙。
 
-DankMaterialShell is a complete desktop shell for [niri](https://github.com/YaLTeR/niri), [Hyprland](https://hyprland.org/), [MangoWC](https://github.com/DreamMaoMao/mangowc), [Sway](https://swaywm.org), [labwc](https://labwc.github.io/), [Scroll](https://github.com/dawsers/scroll), [Miracle WM](https://github.com/miracle-wm-org/miracle-wm), and other Wayland compositors. It replaces waybar, swaylock, swayidle, mako, fuzzel, polkit, and everything else you'd normally stitch together to make a desktop.
+时钟显示 `yyyy/MM/dd HH:mm:ss`，与 CPU 百分比使用相同 NumericText、字号和字重，启用等宽数字；宽度按固定模板计算，不随秒数变化。点击时钟仅打开日历，日历布局固定。
 
-## Repository Structure
+CPU 与内存百分比共用一个无 CPU 图标的组件，点击任意位置打开同一个进程面板。媒体有独立入口和播放器弹窗；没有播放器或停止播放时隐藏波形，暂停时保留。封面占位使用低透明度主题前景色。
 
-This is a monorepo containing both the shell interface and the core backend services:
+## 交互
 
-```
-DankMaterialShell/
-├── quickshell/         # QML-based shell interface
-│   ├── Modules/        # UI components (panels, widgets, overlays)
-│   ├── Services/       # System integration (audio, network, bluetooth)
-│   ├── Widgets/        # Reusable UI controls
-│   └── Common/         # Shared resources and themes
-├── core/               # Go backend and CLI
-│   ├── cmd/            # dms CLI and dankinstall binaries
-│   ├── internal/       # System integration, IPC, distro support
-│   └── pkg/            # Shared packages
-├── distro/             # Distribution packaging
-│   ├── fedora/         # Fedora RPM specs
-│   ├── debian/         # Debian packaging
-│   └── nix/            # NixOS/home-manager modules
-└── flake.nix           # Nix flake for declarative installation
-```
+| 输入 | 位置／操作 | 行为 |
+| --- | --- | --- |
+| Mouse Click／TouchPad | 组件左键点击 | 打开／切换对应弹窗 |
+| Mouse Click／TouchPad | 中央空白区域左键 | 不打开组件弹窗 |
+| Mouse Click | 状态栏空白区域滚轮上下 | 切换上下工作区 |
+| TouchPad | 状态栏空白区域二指滚动 | 不触发滚轮切换工作区 |
+| Touch | 点击组件 | 对应左键点击 |
+| Touch | 组件向屏幕内侧扫动 | 打开对应弹窗；工作区组件打开概览 |
+| 任意点击输入 | 弹窗外部空白 | 关闭弹窗 |
+| KeyBoard Shortcuts | 双击 Super | 打开搜索，由合成器绑定处理 |
 
-## See it in Action
+顶部栏向内是向下，底部栏向内是向上，左右侧栏分别向右、向左。中央组件不通过悬浮展开。
 
-<div align="center">
+工作区、窗口分屏和桌面手势由合成器处理，完整默认交互见 [niri 项目说明](https://github.com/Aegon8719/niri#交互约定)。
 
-https://github.com/user-attachments/assets/d310418b-cc44-4ace-ac0d-2fc0c851291d
+## 共用弹窗
 
-</div>
+`DPopout` 统一负责定位、动画、焦点及外部空白点击关闭。Niri island 模式下，弹窗近侧边缘按工作区预留区域和窗口边缘间隙对齐。
 
-<details><summary><strong>More Screenshots</strong></summary>
+日历直接使用 `CalendarOverviewCard`，媒体直接使用 `MediaPlayerTab`，均关闭外层背景绘制并省去外层留白。`drawBackground` 控制共用外框绘制，内容自身的背景与控件不受影响。默认配置关闭 `blurBorderEnabled`，不绘制主色外框；应用焦点高亮由合成器独立管理。
 
-<div align="center">
+## 代码结构与构建
 
-<img src="https://github.com/user-attachments/assets/203a9678-c3b7-4720-bb97-853a511ac5c8" width="600" alt="Desktop" />
+| 路径 | 用途 |
+| --- | --- |
+| `quickshell/Modules/DBar/` | 状态栏布局和内置部件 |
+| `quickshell/Modules/DIsland/` | island 承载与状态切换 |
+| `quickshell/Modules/SurfaceWidgets/` | 共用部件加载、点击与弹窗路由 |
+| `quickshell/Modules/DDash/` | 日历、媒体和仪表盘内容 |
+| `quickshell/Widgets/DPopout.qml` | 弹窗公共接口 |
+| `quickshell/Widgets/DPopoutHost.qml` | 弹窗表面、动画及绘制 |
+| `quickshell/Services/` | 系统集成及合成器通信 |
+| `core/` | Go 后端、CLI 及嵌入式 Shell |
+| `dank-qml-common/` | 共用 QML 子模块 |
 
-<img src="https://github.com/user-attachments/assets/a937cf35-a43b-4558-8c39-5694ff5fcac4" width="600" alt="Dashboard" />
-
-<img src="https://github.com/user-attachments/assets/2da00ea1-8921-4473-a2a9-44a44535a822" width="450" alt="Launcher" />
-
-<img src="https://github.com/user-attachments/assets/732c30de-5f4a-4a2b-a995-c8ab656cecd5" width="600" alt="Control Center" />
-
-</div>
-
-</details>
-
-## Installation
-
-```bash
-curl -fsSL https://install.danklinux.com | sh
+```sh
+git submodule update --init --recursive
+make build
 ```
 
-One command installs DMS and all dependencies on Arch, Fedora, Debian, Ubuntu, openSUSE, or Gentoo.
+产物为 `core/bin/dms`。构建会同步 QML 资源到嵌入目录；不要手动编辑生成资源。运行环境需要 Quickshell／Qt、配套系统服务和当前版本要求的 Go 工具链，安装依赖由 ConsciaDesktop 提供。
 
-**FreeBSD:** native support is included in-tree; see [distro/freebsd/README.md](distro/freebsd/README.md) for supported integrations and setup notes.
-
-**[Manual installation guide](https://danklinux.com/docs/dankmaterialshell/installation)**
-
-## Features
-
-**Dynamic Theming**
-Wallpaper-based color schemes that automatically theme GTK, Qt, terminals, editors (vscode, vscodium), and more using [matugen](https://github.com/InioX/matugen) and dank16.
-
-**System Monitoring**
-Real-time CPU, RAM, GPU metrics and temperatures built into the dms daemon (powered by [dgop](https://github.com/AvengeMedia/dgop)). Process list with search and management.
-
-**Powerful Launcher**
-Spotlight-style search for applications, files ([dsearch](https://github.com/AvengeMedia/danksearch)), emojis, running windows, calculator, and commands. Extensible with plugins.
-
-**Control Center**
-Unified interface for network, Bluetooth, audio devices, display settings, and night mode.
-
-**Smart Notifications**
-Notification center with grouping, rich text support, and keyboard navigation.
-
-**Media Integration**
-MPRIS player controls, calendar sync, weather widgets, and clipboard history with image previews.
-
-**Session Management**
-Lock screen, idle detection, auto-lock/suspend with separate AC/battery settings, and a settings front-end for [dank-greeter](https://github.com/AvengeMedia/dank-greeter).
-
-**Plugin System**
-Extend functionality with the [plugin registry](https://plugins.danklinux.com). DMS keeps
-`~/.config/DankMaterialShell/plugins.lock.json` synchronized with managed plugin installs and
-their exact Git commits, so the same plugins can be reproduced on another machine.
-
-## Supported Compositors
-
-Works best with [niri](https://github.com/YaLTeR/niri), [Hyprland](https://hyprland.org/), [Sway](https://swaywm.org/), [MangoWC](https://github.com/DreamMaoMao/mangowc), [labwc](https://labwc.github.io/), [Scroll](https://github.com/dawsers/scroll), and [Miracle WM](https://github.com/miracle-wm-org/miracle-wm) with full workspace switching, overview integration, and monitor management. Other Wayland compositors work with reduced features.
-
-[Compositor configuration guide](https://danklinux.com/docs/dankmaterialshell/compositors)
-
-## Command Line Interface
-
-Control the shell from the command line or keybinds:
-
-```bash
-dms run              # Start the shell
-dms ipc call spotlight toggle
-dms ipc call audio setvolume 50
-dms ipc call wallpaper set /path/to/image.jpg
-dms brightness list  # List available displays
-dms plugins search   # Browse plugin registry
-dms plugins lock     # Refresh the portable plugin lockfile
-dms plugins restore ~/plugins.lock.json
-```
-
-[Full CLI and IPC documentation](https://danklinux.com/docs/dankmaterialshell/keybinds-ipc)
-
-## Documentation
-
-- **Website:** [danklinux.com](https://danklinux.com)
-- **Docs:** [danklinux.com/docs](https://danklinux.com/docs/)
-- **Theming:** [Application themes](https://danklinux.com/docs/dankmaterialshell/application-themes) | [Custom themes](https://danklinux.com/docs/dankmaterialshell/custom-themes)
-- **Plugins:** [Development guide](https://danklinux.com/docs/dankmaterialshell/plugins-overview)
-- **Support:** [Ko-fi](https://ko-fi.com/danklinux)
-
-## Dank Projects
-
-DMS is one piece of the suite. The rest lives in its own repos:
-
-- [dank-greeter](https://github.com/AvengeMedia/dank-greeter) - greetd login screen with the Dank Material aesthetic. The Greeter tab in DMS settings is the front-end for it.
-- [dankcalendar](https://github.com/AvengeMedia/dankcalendar) - Local, Google, Microsoft, and CalDAV calendars for the dank desktop.
-- [dgop](https://github.com/AvengeMedia/dgop) - System monitoring TUI and Go library; its library powers the process list and dashboard widgets inside the dms daemon.
-- [dsearch](https://github.com/AvengeMedia/danksearch) - Fast file search that powers file results in the launcher.
-- [dank-qml-common](https://github.com/AvengeMedia/dank-qml-common) - Shared QML widgets and components used by DMS, dank-greeter, and dankcalendar.
-- [dankgo](https://github.com/AvengeMedia/dankgo) - Common Go modules behind the single binary apps.
-
-## Development
-
-See component-specific documentation:
-
-- **[quickshell/](quickshell/)** - QML shell development, widgets, and modules
-- **[core/](core/)** - Go backend, CLI tools, and system integration
-- **[distro/](distro/)** - Distribution packaging (Fedora, Debian, NixOS)
-
-### Building from Source
-
-**Core + Dankinstall:**
-
-```bash
-cd core
-make              # Build dms CLI
-make dankinstall  # Build installer
-```
-
-**Shell:**
-
-```bash
-quickshell -p quickshell/
-```
-
-**NixOS:**
-
-```nix
-{
-  inputs.dms.url = "github:AvengeMedia/DankMaterialShell";
-
-  # Use in home-manager or NixOS configuration
-  imports = [ inputs.dms.homeModules.dank-material-shell ];
-}
-```
-
-## Contributing
-
-Contributions welcome. Bug fixes, widgets, features, documentation, and plugins all help.
-
-1. Fork the repository
-2. Make your changes
-3. Test thoroughly
-4. Open a pull request
-
-For documentation contributions, see [DankLinux-Docs](https://github.com/AvengeMedia/DankLinux-Docs).
+[QML 结构说明](quickshell/README.md)、[后端说明](core/README.md)、[插件接口](quickshell/PLUGINS/README.md)。
 
 ## Credits
 
@@ -204,10 +69,7 @@ For documentation contributions, see [DankLinux-Docs](https://github.com/AvengeM
 - [end-4](https://github.com/end-4) - [dots-hyprland](https://github.com/end-4/dots-hyprland) inspiration
 - [Reverier-Xu](https://github.com/Reverier-Xu) - [Ori-fcitx5](https://github.com/Reverier-Xu/Ori-fcitx5) inspiration for Fcitx5 theme
 
-## Star History
-
-[![Star History Chart](https://star-history.dera.page/svg?repos=AvengeMedia/DankMaterialShell&type=date&legend=top-left)](https://star-history.dera.page/#AvengeMedia/DankMaterialShell&type=date&legend=top-left)
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
+MIT License，见 [LICENSE](LICENSE)。

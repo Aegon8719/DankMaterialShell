@@ -2144,7 +2144,7 @@ Item {
                         anchors.fill: parent
                         visible: !root._fluidMotionActive
                         radius: Theme.windowRadius
-                        color: Theme.readableSurface
+                        color: chrome.surfaceColor
                     }
                 }
 
@@ -2159,8 +2159,8 @@ Item {
                     visible: contentWrapper.visible
                     radius: Theme.windowRadius
                     color: "transparent"
-                    border.color: BlurService.borderColor
-                    border.width: BlurService.borderWidth
+                    border.color: chrome.surfaceBorderColor
+                    border.width: chrome.surfaceBorderWidth
                     z: 100
                 }
             }

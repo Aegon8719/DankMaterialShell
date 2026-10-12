@@ -4,6 +4,10 @@
 
 The `PopoutService` singleton provides plugins with access to all DankMaterialShell popouts and modals. It's automatically injected into plugin widgets and daemons, enabling them to control shell UI elements.
 
+## Shared widget popouts
+
+Built-in bar widgets use `SurfaceWidgetFactory` and `SurfaceContext` for popup anchors. `DPopout` handles outside-background dismissal by default. Set `drawBackground: false` when content supplies its own surface; positioning, animation and dismissal remain shared. Calendar and media bar entries use local loaders for `CalendarOverviewCard` and `MediaPlayerTab`; the general DankDash API below still opens the configurable dashboard.
+
 ## Automatic Injection
 
 The `popoutService` property is automatically injected into:
@@ -22,7 +26,7 @@ property var popoutService: null
 
 ## API Reference
 
-### Popouts (DankPopout-based)
+### Popouts
 
 | Component           | Open                       | Close                       | Toggle                       |
 | ------------------- | -------------------------- | --------------------------- | ---------------------------- |
