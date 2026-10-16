@@ -16,6 +16,9 @@ Item {
 
     required property var popoutHandle
     property bool connected: true
+    readonly property color popupSurfaceColor: !popoutHandle.drawBackground ? "transparent" : usesConnectedSurfaceChrome ? Theme.connectedSurfaceColor : Theme.readableSurface
+    readonly property color popupBorderColor: usesConnectedSurfaceChrome ? Theme.withAlpha(BlurService.borderColor, 0) : BlurService.borderColor
+    readonly property real popupBorderWidth: !popoutHandle.drawBackground || usesConnectedSurfaceChrome ? 0 : BlurService.borderWidth
     readonly property bool fluidMotionEnabled: Theme.isFluidEffect && (!connected || frameOwnsConnectedChrome)
     property bool _fluidMotionActive: false
     property string layerNamespace: popoutHandle.layerNamespace
@@ -1804,9 +1807,6 @@ Item {
             readonly property alias contentWrapper: contentWrapper
             readonly property alias blur: popoutBlur
             readonly property real surfaceRadius: root.usesConnectedSurfaceChrome ? Theme.connectedSurfaceRadius : Theme.windowRadius
-            readonly property color surfaceColor: root.popoutHandle.drawBackground ? (root.usesConnectedSurfaceChrome ? Theme.connectedSurfaceColor : Theme.readableSurface) : "transparent"
-            readonly property color surfaceBorderColor: root.usesConnectedSurfaceChrome ? Theme.withAlpha(BlurService.borderColor, 0) : BlurService.borderColor
-            readonly property real surfaceBorderWidth: !root.popoutHandle.drawBackground || root.usesConnectedSurfaceChrome ? 0 : BlurService.borderWidth
             readonly property real surfaceTopLeftRadius: root.usesConnectedSurfaceChrome && (contentContainer.barTop || contentContainer.barLeft) ? 0 : surfaceRadius
             readonly property real surfaceTopRightRadius: root.usesConnectedSurfaceChrome && (contentContainer.barTop || contentContainer.barRight) ? 0 : surfaceRadius
             readonly property real surfaceBottomLeftRadius: root.usesConnectedSurfaceChrome && (contentContainer.barBottom || contentContainer.barLeft) ? 0 : surfaceRadius
@@ -1817,7 +1817,7 @@ Item {
                 id: popoutBlur
                 targetWindow: contentWindow
                 blurEnabled: Theme.connectedSurfaceBlurEnabled && !root.frameOwnsConnectedChrome
-                surfaceColor: chrome.surfaceColor
+                surfaceColor: root.popupSurfaceColor
 
                 readonly property real s: Math.min(1, contentContainer.scaleValue)
                 readonly property bool trackBlurFromBarEdge: root.usesConnectedSurfaceChrome
@@ -1899,9 +1899,9 @@ Item {
                         topRightRadius: chrome.surfaceTopRightRadius
                         bottomLeftRadius: chrome.surfaceBottomLeftRadius
                         bottomRightRadius: chrome.surfaceBottomRightRadius
-                        targetColor: chrome.surfaceColor
-                        borderColor: chrome.surfaceBorderColor
-                        borderWidth: chrome.surfaceBorderWidth
+                        targetColor: root.popupSurfaceColor
+                        borderColor: root.popupBorderColor
+                        borderWidth: root.popupBorderWidth
                         shadowEnabled: Theme.elevationEnabled && SettingsData.popoutElevationEnabled && Quickshell.env("DMS_DISABLE_LAYER") !== "true" && Quickshell.env("DMS_DISABLE_LAYER") !== "1" && !(root.suspendShadowWhileResizing && root._resizeActive) && !root.frameOwnsConnectedChrome
                     }
 
@@ -1938,7 +1938,7 @@ Item {
 
                             property real widthPx: width
                             property real heightPx: height
-                            property vector4d surfaceColor: Qt.vector4d(chrome.surfaceColor.r, chrome.surfaceColor.g, chrome.surfaceColor.b, chrome.surfaceColor.a)
+                            property vector4d surfaceColor: Qt.vector4d(root.popupSurfaceColor.r, root.popupSurfaceColor.g, root.popupSurfaceColor.b, root.popupSurfaceColor.a)
                             property vector4d shadowColor: Qt.vector4d(localChrome.shadowTint.r, localChrome.shadowTint.g, localChrome.shadowTint.b, localChrome.shadowsOn ? localChrome.shadowTint.a : 0)
                             property vector4d shadowParam: Qt.vector4d(Math.max(0, localChrome.shadowBlurPx), localChrome.shadowSpreadPx, localChrome.shadowOffsetX, localChrome.shadowOffsetY)
                             property vector4d ambientParam: Qt.vector4d(localChrome.ambient.blurPx, localChrome.ambient.spreadPx, localChrome.shadowsOn ? localChrome.ambient.alpha : 0, 0)
@@ -1995,9 +1995,9 @@ Item {
                                 topRightRadius: chrome.surfaceTopRightRadius
                                 bottomLeftRadius: chrome.surfaceBottomLeftRadius
                                 bottomRightRadius: chrome.surfaceBottomRightRadius
-                                color: chrome.surfaceColor
-                                border.color: chrome.surfaceBorderColor
-                                border.width: chrome.surfaceBorderWidth
+                                color: root.popupSurfaceColor
+                                border.color: root.popupBorderColor
+                                border.width: root.popupBorderWidth
                             }
                         }
                     }
@@ -2061,7 +2061,7 @@ Item {
             WindowBlur {
                 id: popoutBlur
                 targetWindow: contentWindow
-                surfaceColor: Theme.readableSurface
+                surfaceColor: root.popupSurfaceColor
                 readonly property real s: Math.min(1, contentContainer.scaleValue)
                 readonly property real op: Math.max(0, Math.min(1, (morph.value - 0.08) * 1.6))
                 readonly property real visibleScale: s * op
@@ -2104,7 +2104,7 @@ Item {
                     direction: root.effectiveShadowDirection
                     fallbackOffset: root.shadowFallbackOffset
                     targetRadius: Theme.windowRadius
-                    targetColor: root._fluidMotionActive ? Theme.readableSurface : "transparent"
+                    targetColor: root._fluidMotionActive ? root.popupSurfaceColor : "transparent"
                     shadowEnabled: Theme.elevationEnabled && SettingsData.popoutElevationEnabled && Quickshell.env("DMS_DISABLE_LAYER") !== "true" && Quickshell.env("DMS_DISABLE_LAYER") !== "1" && !(root.suspendShadowWhileResizing && root._resizeActive)
                 }
 
@@ -2144,7 +2144,7 @@ Item {
                         anchors.fill: parent
                         visible: !root._fluidMotionActive
                         radius: Theme.windowRadius
-                        color: chrome.surfaceColor
+                        color: root.popupSurfaceColor
                     }
                 }
 
@@ -2159,8 +2159,8 @@ Item {
                     visible: contentWrapper.visible
                     radius: Theme.windowRadius
                     color: "transparent"
-                    border.color: chrome.surfaceBorderColor
-                    border.width: chrome.surfaceBorderWidth
+                    border.color: root.popupBorderColor
+                    border.width: root.popupBorderWidth
                     z: 100
                 }
             }

@@ -394,6 +394,7 @@ BasePill {
 
             BarTouchArea {
                 edge: root.axis?.edge ?? "top"
+                swipeEnabled: root.section === "left" || root.section === "right"
                 onActivated: {
                     if (isGrouped && windowCount > 1) {
                         const current = groupData.windows.findIndex(w => w.toplevel.activated);

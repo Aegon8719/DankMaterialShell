@@ -58,8 +58,8 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: root.backdropRadius
-        color: root.surfaceColor
-        border.width: Theme.layerOutlineWidth
+        color: root.player.drawBackground ? root.surfaceColor : "transparent"
+        border.width: root.player.drawBackground ? Theme.layerOutlineWidth : 0
         border.color: Theme.outlineMedium
 
         Loader {

@@ -65,8 +65,7 @@ BasePill {
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
-                NumericText {
-                    isMonospace: false
+                BarNumericText {
                     font.features: root.tabularDigits ? ({
                             "tnum": 1
                         }) : ({})
@@ -76,8 +75,7 @@ BasePill {
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
-                NumericText {
-                    isMonospace: false
+                BarNumericText {
                     visible: root.verticalSecondaryText !== ""
                     text: root.verticalSecondaryText
                     font.pixelSize: root.textSize
@@ -90,6 +88,8 @@ BasePill {
                 id: row
                 visible: !root.isVerticalOrientation
                 anchors.centerIn: parent
+                leftPadding: Theme.spacingXS
+                rightPadding: Theme.spacingXS
                 spacing: Theme.spacingXS
 
                 DIcon {
@@ -110,15 +110,12 @@ BasePill {
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
-                NumericText {
-                    isMonospace: false
+                BarNumericText {
                     font.features: root.tabularDigits ? ({
                             "tnum": 1
                         }) : ({})
                     text: root.horizontalText
                     reserveText: root.minimumWidth ? root.reserveText : ""
-                    width: Math.ceil(Math.max(implicitWidth, reservedWidth))
-                    horizontalAlignment: Text.AlignHCenter
                     font.pixelSize: root.textSize
                     color: root.contentColor
                     anchors.verticalCenter: parent.verticalCenter

@@ -26,7 +26,8 @@ Item {
     property Item lyricsOpener: null
     readonly property var presentation: mediaPresentation.current
     readonly property bool idle: !presentation
-    property bool wallpaperEnabled: MediaOptions.albumArtBackdrop
+    property bool drawBackground: true
+    property bool wallpaperEnabled: drawBackground && MediaOptions.albumArtBackdrop
     property string panel: ""
     property Item contentViewport: null
     readonly property bool blocksTabNavigation: panel !== ""

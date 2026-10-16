@@ -439,13 +439,13 @@ Item {
             property var triggerScreen: null
             screen: triggerScreen
             layerNamespace: "dms:media-player"
-            drawBackground: false
             popupWidth: DashMetrics.contentWidthFor(SettingsData.showWeekNumber, DashMetrics.panelColumnsFor("media"))
             popupHeight: contentLoader.item?.implicitHeight ?? DashMetrics.tabMinHeight
             content: Component {
                 MediaPlayerTab {
                     width: mediaPopout.popupWidth
                     height: implicitHeight
+                    drawBackground: false
                     live: mediaPopout.shouldBeVisible
                     contentViewport: this
                 }

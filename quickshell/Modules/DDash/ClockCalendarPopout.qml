@@ -10,7 +10,6 @@ DPopout {
     property var triggerScreen: null
     screen: triggerScreen
     layerNamespace: "dms:clock-calendar"
-    drawBackground: false
     popupWidth: DashMetrics.preferredColumnWidth * 4
     popupHeight: DashMetrics.gridRowUnit * 4
 
@@ -18,6 +17,8 @@ DPopout {
         CalendarOverviewCard {
             width: root.popupWidth
             height: root.popupHeight
+            color: "transparent"
+            border.width: 0
             fixedOptions: ({weekends: true})
             eventEditingEnabled: false
             live: root.shouldBeVisible

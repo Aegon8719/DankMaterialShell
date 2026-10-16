@@ -21,7 +21,7 @@ MonitorPill {
     verticalText: usage ? usage.toFixed(0) : "--"
     verticalSecondaryText: combinedMemory ? memoryText : ""
     horizontalText: combinedMemory ? I18n.tr("CPU") + " " + cpuText + "  " + I18n.tr("RAM") + " " + memoryText : usage ? cpuText : "--%"
-    reserveText: combinedMemory ? I18n.tr("CPU") + " 100%  " + I18n.tr("RAM") + " 100%" : "100%"
+    reserveText: combinedMemory ? "" : "100%"
     sortKey: "cpu"
     onActivated: cpuClicked()
 }

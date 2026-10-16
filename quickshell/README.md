@@ -15,10 +15,10 @@ QML 桌面界面由共享状态栏部件、内容组件、弹窗和系统服务�
 | `Common/` | 主题、设置、布局及弹窗管理 |
 | `PLUGINS/` | 插件接口与示例 |
 
-状态栏组件通过 SurfaceWidgetFactory 打开弹窗，使用 SurfaceContext 计算锚点。DPopout 默认处理背景点击关闭；需要特殊关闭状态的组件可提供自己的处理。具有独立内容背景的弹窗使用 `drawBackground: false`，避免叠加外层容器。
+状态栏组件通过 SurfaceWidgetFactory 打开弹窗，使用 SurfaceContext 计算锚点。DPopout 默认处理背景点击关闭；需要特殊关闭状态的组件可提供自己的处理。日历和媒体关闭内容组件的整块背景，复用 DPopout 的单层背景；媒体播放器的 `drawBackground` 同时控制内部背景描边及封面背景叠加。
 
-时钟使用 NumericText 和固定模板尺寸，CPU／内存共用一个 MonitorPill。日历复用 CalendarOverviewCard，媒体复用 MediaPlayerTab；这些内容不复制弹窗定位或关闭代码。
+时钟和性能数字复用 BarNumericText，显式使用同一主题字体及字重，内容按实际文字高度居中；时钟使用固定模板宽度，CPU／内存共用一个 MonitorPill。日历复用 CalendarOverviewCard，媒体复用 MediaPlayerTab；这些内容不复制弹窗定位或关闭代码。
 
-触屏输入由 BarTouchArea 转换为组件主操作，工作区向内扫动打开概览。空白区域鼠标滚轮由 BarScrollArea 处理，明确排除带滚动阶段的触控板事件。
+触屏输入由 BarTouchArea 转换为组件主操作。左右两侧组件支持向内扫动，工作区扫动打开概览；中央组件仅支持点击。空白区域鼠标滚轮由 BarScrollArea 处理，明确排除带滚动阶段的触控板事件。
 
 在仓库根目录运行 `make build` 将 QML 随 Go CLI 嵌入，产物为 `core/bin/dms`。直接运行源目录可使用 `quickshell -p quickshell/`。

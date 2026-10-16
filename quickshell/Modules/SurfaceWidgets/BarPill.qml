@@ -121,6 +121,7 @@ Item {
     BarTouchArea {
         enabled: root.touchEnabled && root.surfaceLive
         edge: root.axis?.edge ?? "top"
+        swipeEnabled: root.section === "left" || root.section === "right"
         onActivated: (position, swiped) => root.touchAction(position, swiped)
     }
 

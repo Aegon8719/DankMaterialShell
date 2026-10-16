@@ -31,31 +31,24 @@ BasePill {
     content: Component {
         Item {
             implicitWidth: root.isVerticalOrientation ? root.contentThickness : layout.implicitWidth
-            implicitHeight: root.isVerticalOrientation ? layout.implicitHeight : root.contentThickness
+            implicitHeight: layout.implicitHeight
 
             Grid {
                 id: layout
                 anchors.centerIn: parent
+                leftPadding: Theme.spacingXS
+                rightPadding: Theme.spacingXS
                 columns: root.isVerticalOrientation ? 1 : Math.max(1, layout.visibleChildren.length)
                 spacing: root.isVerticalOrientation ? Theme.spacingXXS : Theme.spacingXS
                 horizontalItemAlignment: Grid.AlignHCenter
                 verticalItemAlignment: Grid.AlignVCenter
 
-                NumericText {
+                BarNumericText {
                     id: clock
-                    isMonospace: false
-                    font.features: ({"tnum": 1})
                     font.pixelSize: root.textSize
                     color: root.contentColor
                     text: systemClock.date.toLocaleDateString(I18n.locale(), "yyyy/MM/dd") + " " + systemClock.date.toLocaleTimeString(I18n.locale(), "HH:mm:ss")
-                    width: Math.ceil(fixedMetrics.advanceWidth)
-                    horizontalAlignment: Text.AlignHCenter
-
-                    StyledTextMetrics {
-                        id: fixedMetrics
-                        font: clock.font
-                        text: "8888/88/88 88:88:88"
-                    }
+                    widthTemplate: "8888/88/88 88:88:88"
                 }
 
                 Rectangle {

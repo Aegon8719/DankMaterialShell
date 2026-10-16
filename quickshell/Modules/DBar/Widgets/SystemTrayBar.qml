@@ -593,6 +593,7 @@ BasePill {
                     id: caretButton
                     BarTouchArea {
                         edge: root.axis?.edge ?? "top"
+                        swipeEnabled: root.section === "left" || root.section === "right"
                         onActivated: {
                             if (root.useOverflowPopup && !root.menuOpen)
                                 root._openOverflowAt(caretButton);
@@ -685,6 +686,7 @@ BasePill {
                 id: inlineVisualContent
                 BarTouchArea {
                     edge: root.axis?.edge ?? "top"
+                    swipeEnabled: root.section === "left" || root.section === "right"
                     onActivated: root.activateInlineTrayItem(trayItem, inlineVisualContent)
                 }
                 width: root.trayItemSize
@@ -797,6 +799,7 @@ BasePill {
 
             BarTouchArea {
                 edge: root.axis?.edge ?? "top"
+                swipeEnabled: root.section === "left" || root.section === "right"
                 onActivated: root.activateInlineTrayItem(delegateRoot.trayItem, visualContent)
             }
 
@@ -949,6 +952,7 @@ BasePill {
                     id: caretButtonVert
                     BarTouchArea {
                         edge: root.axis?.edge ?? "top"
+                        swipeEnabled: root.section === "left" || root.section === "right"
                         onActivated: {
                             if (root.useOverflowPopup && !root.menuOpen)
                                 root._openOverflowAt(caretButtonVert);
