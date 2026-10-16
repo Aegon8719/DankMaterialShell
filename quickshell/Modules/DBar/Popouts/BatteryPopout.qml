@@ -16,7 +16,6 @@ DPopout {
     screen: triggerScreen
     contentHandlesKeys: true
 
-    onBackgroundClicked: close()
 
     content: Component {
         BatteryPopoutContent {

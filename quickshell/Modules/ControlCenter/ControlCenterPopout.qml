@@ -127,7 +127,6 @@ DPopout {
 
     customKeyboardFocus: anyModalOpen ? WlrKeyboardFocus.None : null
 
-    onBackgroundClicked: close()
 
     onShouldBeVisibleChanged: {
         if (shouldBeVisible) {

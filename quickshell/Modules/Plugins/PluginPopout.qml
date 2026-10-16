@@ -18,7 +18,6 @@ DPopout {
     screen: triggerScreen
     shouldBeVisible: false
 
-    onBackgroundClicked: close()
 
     content: Component {
         Rectangle {

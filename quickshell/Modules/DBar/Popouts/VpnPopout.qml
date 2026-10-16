@@ -26,7 +26,6 @@ DPopout {
         wasVisible = shouldBeVisible;
     }
 
-    onBackgroundClicked: close()
 
     content: Component {
         Rectangle {

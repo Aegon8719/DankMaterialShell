@@ -14,7 +14,6 @@ DPopout {
     positioning: ""
     shouldBeVisible: false
 
-    onBackgroundClicked: close()
     onOpened: focusTimer.restart()
 
     Timer {

@@ -1,5 +1,3 @@
-//go:build !distro_binary
-
 package main
 
 import (
@@ -14,13 +12,11 @@ var Version = "dev"
 func init() {
 	authCmd.AddCommand(authSyncCmd, authResolveLockCmd, authListServicesCmd, authValidateCmd)
 	setupCmd.AddCommand(setupHeadlessCmd, setupBindsCmd, setupLayoutCmd, setupColorsCmd, setupAlttabCmd, setupOutputsCmd, setupCursorCmd, setupWindowrulesCmd)
-	updateCmd.AddCommand(updateCheckCmd)
 	pluginsCmd.AddCommand(pluginsBrowseCmd, pluginsListCmd, pluginsInstallCmd, pluginsUninstallCmd, pluginsUpdateCmd, pluginsLockCmd, pluginsRestoreCmd)
-	registryCmd.AddCommand(registryListCmd, registryAddCmd, registryRemoveCmd)
 	rootCmd.AddCommand(getCommonCommands()...)
 
 	rootCmd.AddCommand(authCmd)
-	rootCmd.AddCommand(updateCmd)
+	configureEditionCommands()
 
 	rootCmd.SetHelpTemplate(getHelpTemplate())
 }

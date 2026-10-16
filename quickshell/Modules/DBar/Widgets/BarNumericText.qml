@@ -13,7 +13,7 @@ NumericText {
     font.weight: Theme.fontWeight
     font.features: ({"tnum": 1})
     horizontalAlignment: Text.AlignHCenter
-    width: Math.ceil(widthTemplate !== "" ? templateMetrics.advanceWidth : Math.max(implicitWidth, reservedWidth))
+    width: Math.ceil(widthTemplate !== "" ? templateMetrics.advanceWidth : reservedWidth)
 
     StyledTextMetrics {
         id: templateMetrics

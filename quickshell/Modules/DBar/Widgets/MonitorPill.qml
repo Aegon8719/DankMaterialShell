@@ -6,7 +6,13 @@ import qs.DCommon.Widgets
 
 BasePill {
     id: root
-    touchAction: (position, swiped) => {
+    touchAction: (position, swiped) => activateMonitor()
+    onClicked: {
+        if (root.sortKey !== "")
+            activateMonitor();
+    }
+
+    function activateMonitor() {
         if (root.sortKey !== "")
             DgopService.setSortBy(root.sortKey);
         root.activated();
@@ -124,18 +130,4 @@ BasePill {
         }
     }
 
-    MouseArea {
-        visible: root.sortKey !== ""
-        x: -root.leftMargin
-        y: -root.topMargin
-        width: root.width + root.leftMargin + root.rightMargin
-        height: root.height + root.topMargin + root.bottomMargin
-        cursorShape: Qt.PointingHandCursor
-        acceptedButtons: Qt.LeftButton
-        onPressed: mouse => {
-            root.triggerRipple(this, mouse.x, mouse.y);
-            DgopService.setSortBy(root.sortKey);
-            root.activated();
-        }
-    }
 }

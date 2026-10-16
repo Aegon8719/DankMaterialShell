@@ -24,7 +24,6 @@ DPopout {
         triggerSource = source;
     }
 
-    onBackgroundClicked: close()
 
     Timer {
         interval: 1000

@@ -16,8 +16,10 @@ BasePill {
     signal showSavedItemsRequested
     signal clearAllRequested
 
-    function clamp(value, minValue, maxValue) {
-        return Math.max(minValue, Math.min(maxValue, value));
+    onClicked: clipboardClicked()
+    onRightClicked: (rootX, rootY) => {
+        root.triggerRipple(root, rootX, rootY);
+        openContextMenu();
     }
 
     function handleDrop(drop) {
@@ -69,26 +71,6 @@ BasePill {
     function openContextMenu() {
         const anchor = root.contextMenuAnchor();
         contextMenu.openFromBar(anchor);
-    }
-
-    MouseArea {
-        x: -root.leftMargin
-        y: -root.topMargin
-        width: root.width + root.leftMargin + root.rightMargin
-        height: root.height + root.topMargin + root.bottomMargin
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-        cursorShape: Qt.PointingHandCursor
-        onPressed: function (mouse) {
-            root.triggerRipple(this, mouse.x, mouse.y);
-            switch (mouse.button) {
-            case Qt.RightButton:
-                openContextMenu();
-                break;
-            case Qt.LeftButton:
-                clipboardClicked();
-                break;
-            }
-        }
     }
 
     content: Component {

@@ -7,6 +7,8 @@ import qs.DCommon.Widgets
 BasePill {
     id: root
     circular: true
+    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+    onMiddleClicked: SessionData.setDoNotDisturb(!SessionData.doNotDisturb)
 
     property bool hasUnread: false
     property bool isActive: false
@@ -36,16 +38,4 @@ BasePill {
         }
     }
 
-    MouseArea {
-        x: -root.leftMargin
-        y: -root.topMargin
-        width: root.width + root.leftMargin + root.rightMargin
-        height: root.height + root.topMargin + root.bottomMargin
-        acceptedButtons: Qt.MiddleButton
-        cursorShape: Qt.PointingHandCursor
-        onPressed: mouse => {
-            root.triggerRipple(this, mouse.x, mouse.y);
-            SessionData.setDoNotDisturb(!SessionData.doNotDisturb);
-        }
-    }
 }

@@ -130,7 +130,6 @@ DPopout {
             Qt.callLater(openModal);
     }
 
-    onBackgroundClicked: close()
 
     content: Component {
         Rectangle {
